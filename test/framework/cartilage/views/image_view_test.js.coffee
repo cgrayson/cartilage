@@ -16,7 +16,7 @@ asyncTest "should fire load event upon successful load", ->
   testImageView.on "load", ->
     ok true
     start()
-  testImageView.imageAddress = "http://www.placehold.it/500x500"
+  testImageView.imageAddress = "http://activeprospect.com/wp-content/themes/activeprospect/images/logo.png"
 
 asyncTest "should fire error event upon unsuccessful load attempt", ->
   testImageView = new Cartilage.Views.ImageView
