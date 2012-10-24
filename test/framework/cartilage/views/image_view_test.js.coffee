@@ -13,14 +13,15 @@ test "isError property should be read-only", ->
 
 asyncTest "should fire load event upon successful load", ->
   testImageView = new Cartilage.Views.ImageView
+    imageAddress: "http://www.placehold.it/500x500"
   testImageView.on "load", ->
     ok true
     start()
-  testImageView.imageAddress = "http://activeprospect.com/wp-content/themes/activeprospect/images/logo.png"
 
 asyncTest "should fire error event upon unsuccessful load attempt", ->
   testImageView = new Cartilage.Views.ImageView
+    imageAddress: '404'
+
   testImageView.on "error", ->
     ok true
     start()
-  testImageView.imageAddress = "404"

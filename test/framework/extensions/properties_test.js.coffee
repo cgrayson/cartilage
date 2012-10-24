@@ -64,7 +64,6 @@ test "should initialize property via super()", ->
     initialize: (options = {}) ->
       options.testProperty = "bar"
       super(options)
-      # @testProperty = "bar" # uncommenting this line allows test to pass
 
   testView = new TestView
 
