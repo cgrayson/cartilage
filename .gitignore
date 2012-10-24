@@ -9,3 +9,4 @@ test/dummy/log/*.log
 test/dummy/tmp/
 .rvmrc
 cartilage.js
+.idea/

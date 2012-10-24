@@ -64,12 +64,12 @@ class window.Cartilage.Views.ListView extends Cartilage.View
   @draggedItem: undefined
 
   events:
-    "dblclick > ul > li": "open"
-    "focus > ul > li": "onFocus"
-    "keydown > ul": "onKeyDown"
-    "mousedown > ul": "onMouseDown"
-    "dragover > ul": "onDragOver"
-    "drop > ul": "onDrop"
+    "dblclick ul > li": "open"
+    "click ul > li": "onFocus"
+    "keydown ul": "onKeyDown"
+    "mousedown ul": "onMouseDown"
+    "dragover ul": "onDragOver"
+    "drop ul": "onDrop"
 
   initialize: (options = {}) ->
 
@@ -111,11 +111,10 @@ class window.Cartilage.Views.ListView extends Cartilage.View
       @renderModel(model)
 
   renderModel: (model) =>
-    new @itemView { model: model, listView: @ } if @itemView?
+    if @itemView? then new @itemView { model: model, listView: @ } else console.warn("Could not find corresponding itemView for #{@constructor.name}")
 
   addModel: (model) =>
-    @collection.add model, { silent: true }
-    @addSubview @renderModel(model)
+    @addItem @renderModel(model)
 
   #
   # Adds an already instantiated list view item (must derive from
@@ -125,7 +124,7 @@ class window.Cartilage.Views.ListView extends Cartilage.View
   #
   addItem: (item) =>
     # TODO Ensure that the item derives from ListViewItem
-    @addSubview item
+    @addSubview item, @_listViewItemsContainer
     @collection.add item.model, { silent: true }
 
   #
@@ -142,7 +141,12 @@ class window.Cartilage.Views.ListView extends Cartilage.View
     return if model in @selected.models
 
     # If an element is already selected, deselect it before continuing.
-    @clearSelection { silent: true } if @selected.length > 0
+    if @allowsMultipleSelection
+      # In multi-select, do a full reset so observing "reset" on @selected works as expected
+      @clearSelection() if @selected.length > 0
+    else
+      # In single select, call deselect on each selected element so observing "deselect" works as expected
+      _.each(($ @el).find("li.selected"), (element) => @deselect(element))
 
     @selected.add model
     ($ element).addClass "selected"
@@ -242,9 +246,8 @@ class window.Cartilage.Views.ListView extends Cartilage.View
   # container.
   #
   onMouseDown: (event) =>
-
     # Get the list item element
-    element = ($ event.target).parents("li") || event.target
+    element = if ($ event.target).is("li") then event.target else ($ event.target).parents("li") 
 
     # Clear the selection if the user clicks in the list container.
     @clearSelection() if @allowsDeselection and event.target.tagName == "UL"
@@ -353,9 +356,7 @@ class window.Cartilage.Views.ListView extends Cartilage.View
   #
   moveSelectionUp: (e) =>
     element = ($ @focusedElement).prev "li"
-    if element.length > 0
-      @clearSelection { silent: true } and @select element
-      @focusedElement = ($ element).focus()
+    @select element if element.length > 0
 
   #
   # Moves the selection to the item visually below the selected item. If there
@@ -363,9 +364,7 @@ class window.Cartilage.Views.ListView extends Cartilage.View
   #
   moveSelectionDown: (e) =>
     element = ($ @focusedElement).next "li"
-    if element.length > 0
-      @clearSelection { silent: true } and @select element
-      @focusedElement = ($ element).focus()
+    @select element if element.length > 0
 
   #
   # Expands the selection downward from the currently selected element.
