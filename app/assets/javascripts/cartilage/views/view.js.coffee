@@ -38,10 +38,10 @@ class window.Cartilage.View extends Backbone.View
         JST[_.underscore(@constructor.name)](options)
       else
         if console
-          console.warn "Missing template #{_.underscore(@constructor.name)}.jst.ejs for #{@constructor.name}"
+          console.info "Missing template #{_.underscore(@constructor.name)}.jst.ejs for #{@constructor.name}"
     catch error
       if console
-        console.warn "Template error in #{_.underscore(@constructor.name)}.jst.ejs: \"#{error.message}\"", error
+        console.error "Template error in #{_.underscore(@constructor.name)}.jst.ejs: \"#{error.message}\"", error
 
   #
   # Override the standard constructor so that we can extend each view with any
@@ -78,7 +78,7 @@ class window.Cartilage.View extends Backbone.View
   cleanup: ->
     @off()
     @removeObservers()
-    @remove()
+    $(@el).remove()
 
   observe: (source, event, callback) ->
     source.on(event, callback, @)
@@ -95,7 +95,6 @@ class window.Cartilage.View extends Backbone.View
   # the view's element.
   #
   addSubview: (view, container = @el, animated = false) ->
-
     # Don't allow nil objects to be passed...
     return unless view
 
