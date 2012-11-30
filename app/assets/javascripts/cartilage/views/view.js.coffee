@@ -38,10 +38,10 @@ class window.Cartilage.View extends Backbone.View
         JST[_.underscore(@constructor.name)](options)
       else
         if console
-          console.info "Missing template #{_.underscore(@constructor.name)}.jst.ejs for #{@constructor.name}"
+          console.info "Missing template #{_.underscore(@constructor.name)}.jst.[eco|ejs] for #{@constructor.name}"
     catch error
       if console
-        console.error "Template error in #{_.underscore(@constructor.name)}.jst.ejs: \"#{error.message}\"", error
+        console.error "Template error in #{_.underscore(@constructor.name)}.jst.[eco|ejs]: \"#{error.message}\"", error
 
   #
   # Override the standard constructor so that we can extend each view with any
@@ -98,12 +98,12 @@ class window.Cartilage.View extends Backbone.View
     # Don't allow nil objects to be passed...
     return unless view
 
-    # Maintain a reference to the added subview for later cleanup, or other
-    # operations
-    @_subviews.push(view)
-
     # Set a reference to this view as the added view's superview
     view._superview = @
+
+    # Maintain a reference to the added subview for later cleanup, or other
+    # operations
+    @storeSubview(view)
 
     # Render the View, if necessary
     unless view.isRendered
@@ -115,7 +115,7 @@ class window.Cartilage.View extends Backbone.View
     ($ view.el).css("visibility", "hidden").show()
 
     # Add the View's Element to the DOM
-    ($ container).append(view.el)
+    @insertSubviewElement(view, container)
 
     # Prepare the View for display, if necessary
     unless view.isPrepared
@@ -141,6 +141,12 @@ class window.Cartilage.View extends Backbone.View
 
   addSubviewAnimated: (view, container = @el) ->
     @addSubview(view, container, true)
+
+  insertSubviewElement: (view, container) ->
+    ($ container).append(view.el)
+
+  storeSubview: (view) ->
+    @_subviews.push(view)
 
   #
   # Removes the view from its superview, if it currently belongs to another
